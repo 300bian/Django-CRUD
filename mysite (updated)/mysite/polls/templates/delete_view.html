@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="main">
+    <h1>Delete View</h1>
+    <!-- Display confirmation message -->
+    <p>Are you sure you want to delete this item?</p>
+    <!-- Construct the delete link with object ID -->
+    <form action="{% url 'delete_view' id=id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ obj.id }}">
+        <input type="submit" value="Delete">
+    </form>
+    <a href="{% url 'list' %}">Cancel</a>
+</div>
+{% endblock %}
