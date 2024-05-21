@@ -73,6 +73,31 @@ def change_password(request):
                 return Response({'message': 'Password changed successfully.'}, status=status.HTTP_200_OK)
             return Response({'error': 'Incorrect old password.'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#Change Profile
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def change_profile(request):
+    user = request.user
+    serializer = ChangeProfileSerializer(data=request.data)
+    if serializer.is_valid():
+        original_data ={
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name
+        }
+        updated_user = serializer.update(user, serializer.validated_data)
+        is_modified = any(
+            original_data[field.replace('new_','')] != value for field,value in serializer.validated_data.items()
+        )
+        if is_modified:
+            update_session_auth_hash(request, updated_user)
+            return Response({'Message': "Profile updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({'Message': "No changes detected"})
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
 # Login with Email OTP
 class LoginWithOTP(APIView):
